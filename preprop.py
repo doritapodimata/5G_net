@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 
@@ -42,11 +42,22 @@ y = df["PathLoss(db)"]
 
 # Stratified K-Fold Cross Validation
 # create bins for stratification (διακριτοποίηση συνεχούς μεταβλητής PathLoss)
-num_bins = 5  # Χωρίζουμε το PathLoss σε 10 διαστήματα
-y_binned = np.digitize(y, bins=np.histogram_bin_edges(y, bins=num_bins))
+num_bins = 7  # Χωρίζουμε το PathLoss σε 7 διαστήματα
+
+binning = KBinsDiscretizer(n_bins=num_bins, encode='ordinal', strategy='uniform')
+y_binned = binning.fit_transform(y.values.reshape(-1, 1)).flatten()
 
 # Stratified K-Fold
 skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
-folds = list(skf.split(X, y_binned))
-fold_sizes = [len(test_idx) for _, test_idx in folds]
-print(fold_sizes)
+# folds = list(skf.split(X, y_binned))
+# fold_sizes = [len(test_idx) for _, test_idx in folds]
+# print(fold_sizes)
+
+# Έλεγχος της κατανομής των bins
+print("Κατανομή των bins:")
+print(pd.Series(y_binned).value_counts().sort_index())
+
+# Αποθήκευση των binned labels για μελλοντική χρήση
+df['PathLoss_binned'] = y_binned
+
+
