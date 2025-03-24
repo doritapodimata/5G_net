@@ -5,13 +5,12 @@ from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
 
-df=pd.read_csv("new.csv")
+df = pd.read_csv("new.csv")
 
 print(df.info())
 print(df.columns)
 
 numeric_cols = df.select_dtypes(include=['number'])
-
 numeric_cols.plot(kind='box', subplots=True, layout=(3, 3), figsize=(8, 8), sharex=False, sharey=False)
 plt.suptitle("Box Plots for Numerical Columns")
 plt.show()
@@ -24,7 +23,9 @@ plt.show()
 
 # Min-Max κανονικοποίηση
 scaler = MinMaxScaler()
-df_normalized = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+features = df.drop(columns=["PathLoss(db)"])  # Exclude target
+df_normalized = pd.df(scaler.fit_transform(features), columns=features.columns)
+df_normalized["PathLoss(db)"] = pd.df("Pathloss(db)")
 print(df_normalized.head())
 
 # print all the rows
@@ -44,6 +45,7 @@ y = df["PathLoss(db)"]
 # create bins for stratification (διακριτοποίηση συνεχούς μεταβλητής PathLoss)
 num_bins = 7  # Χωρίζουμε το PathLoss σε 7 διαστήματα
 
+#binnig
 binning = KBinsDiscretizer(n_bins=num_bins, encode='ordinal', strategy='uniform')
 y_binned = binning.fit_transform(y.values.reshape(-1, 1)).flatten()
 
