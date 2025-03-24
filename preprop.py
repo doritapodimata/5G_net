@@ -33,7 +33,7 @@ print(df_normalized.head())
 # print(df_normalized)
 
 # save normalized dataset to a new CSV
-# normalized_file_path = "normalized_dataset.csv"
+# normalized_file_path = "new_new.csv"
 # df_normalized.to_csv(normalized_file_path, index=False)
 # print(normalized_file_path)
 

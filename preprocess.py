@@ -35,5 +35,5 @@ print("\nBin distribution of PathLoss:")
 print(df["PathLoss_binned"].value_counts().sort_index())
 
 # new new dataset
-df.to_csv("normalized_dataset.csv", index=False)
+df.to_csv("new_new.csv", index=False)
 print("\nProcessed dataset saved as 'new_new.csv'")
