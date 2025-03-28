@@ -2,12 +2,14 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 import matplotlib
-matplotlib.use("Agg")
+#matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
 df = pd.read_csv("new.csv")
-
+#type
+df['Latitude'].dtype
+print (df.dtypes)
 # min-max normalization
 scaler = MinMaxScaler()
 values = df.columns.difference(["PathLoss(db)"])  # select all columns except path-loss
