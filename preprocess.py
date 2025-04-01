@@ -3,6 +3,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import MinMaxScaler, KBinsDiscretizer
 import matplotlib
 #matplotlib.use("Agg")
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 
@@ -16,7 +17,7 @@ values = df.columns.difference(["PathLoss(db)"])  # select all columns except pa
 df[values] = scaler.fit_transform(df[values])
 #df["PathLoss(db)"] = df["PathLoss(db)"]
 
-
+# ίσο αριθμό δειγμάτων
 num_bins = 7
 binning = KBinsDiscretizer(num_bins, encode="ordinal", strategy="quantile")
 df["PathLoss_binned"] = binning.fit_transform(df[["PathLoss(db)"]]).flatten()
@@ -39,3 +40,7 @@ print(df["PathLoss_binned"].value_counts().sort_index())
 # new new dataset
 df.to_csv("new_new.csv", index=False)
 print("\nProcessed dataset saved as 'new_new.csv'")
+
+sns.histplot(df["PathLoss(db)"], bins=30, kde=True)
+plt.title("Κατανομή του PathLoss(db)")
+plt.show()
