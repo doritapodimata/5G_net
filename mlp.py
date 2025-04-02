@@ -7,18 +7,17 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 import optuna
 
+# Load data
 df = pd.read_csv("new_new.csv")
-
-X = df.drop(columns=['PathLoss(db)'])  # select all columns except path-loss
+X = df.drop(columns=['PathLoss(db)', 'PathLoss_binned'], errors='ignore')  # ignore if binned column exists
 y = df['PathLoss(db)']
 
-
+# Normalize
 scaler = MinMaxScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Define Optuna objective
+# Optuna objective
 def objective(trial):
-    # Hyperparameters to tune
     n_layers = trial.suggest_int("n_layers", 1, 3)
     units = trial.suggest_int("units", 16, 128)
     dropout = trial.suggest_float("dropout", 0.0, 0.5)
@@ -30,12 +29,12 @@ def objective(trial):
         for _ in range(n_layers):
             model.add(layers.Dense(units, activation='relu'))
             model.add(layers.Dropout(dropout))
-        model.add(layers.Dense(1))  # Regression output
+        model.add(layers.Dense(1))  # output
         model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
                       loss='mean_absolute_error')
         return model
 
-    # 10-Fold CV
+    # Cross-validation- not repeated
     kf = KFold(n_splits=10, shuffle=True, random_state=42)
     val_mae_scores = []
 
@@ -46,7 +45,7 @@ def objective(trial):
         model = build_model()
         model.fit(X_train, y_train,
                   validation_data=(X_val, y_val),
-                  epochs=50, batch_size=32, verbose=0)
+                  epochs=30, batch_size=32, verbose=0)
 
         preds = model.predict(X_val).flatten()
         val_mae_scores.append(mean_absolute_error(y_val, preds))
@@ -55,8 +54,8 @@ def objective(trial):
 
 # Run Optuna
 study = optuna.create_study(direction='minimize')
-study.optimize(objective, n_trials=30, timeout=600)
+study.optimize(objective, n_trials=20, timeout=240)
 
-# Show best results
-print("Best Parameters:", study.best_params)
-print("Best MAE (10-fold CV):", study.best_value)
+# Results
+print(" Best Parameters:", study.best_params)
+print(" Best MAE (10-fold CV):", study.best_value)
