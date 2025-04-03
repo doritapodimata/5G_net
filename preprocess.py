@@ -9,6 +9,8 @@ df = pd.read_csv("new.csv")
 df['Latitude'].dtype
 print (df.dtypes)
 
+pathloss_binned = []
+
 # min-max normalization
 scaler = MinMaxScaler()
 values = df.columns.difference(["PathLoss(db)"])  # select all columns except path-loss
@@ -17,7 +19,7 @@ df[values] = scaler.fit_transform(df[values])
 # binning to make it stratified for the cv (later)
 num_bins = 7
 binning = KBinsDiscretizer (num_bins, encode="ordinal", strategy="quantile")
-df["PathLoss_binned"] = binning.fit_transform(df[["PathLoss(db)"]]).flatten()
+pathloss_binned = binning.fit_transform(df[["PathLoss(db)"]]).flatten()
 
 # display range of the predictors
 df.plot(kind='box', subplots=True, layout=(3, 3), figsize=(8, 8), sharex=False, sharey=False)
@@ -30,8 +32,8 @@ plt.suptitle("Box Plots After MinMax")
 plt.show()
 
 # bins distribution
-print("\nBin distribution of PathLoss:")
-print(df["PathLoss_binned"].value_counts().sort_index())
+# print("\nBin distribution of PathLoss:")
+# print(pathloss_binned.value_counts().sort_index())
 
 # new new dataset
 df.to_csv("new_new.csv", index=False)
