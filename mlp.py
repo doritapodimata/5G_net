@@ -4,8 +4,10 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_absolute_error
 import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.callbacks import EarlyStopping
+# from tensorflow.keras import layers, models
+# from tensorflow.keras.callbacks import EarlyStopping
+from keras import layers, models
+from keras.src.callbacks import EarlyStopping
 import optuna
 import shap
 
@@ -21,7 +23,7 @@ X_scaled = scaler.fit_transform(X)
 
 # Optuna objective function
 def objective(trial):
-    # Hyperparameter space
+    # Hyperparameter
     n_layers = trial.suggest_int("n_layers", 1, 3)
     units = trial.suggest_int("units", 16, 128)
     dropout = trial.suggest_float("dropout", 0.0, 0.5)
@@ -60,7 +62,7 @@ def objective(trial):
                   validation_data=(X_val, y_val),
                   epochs=50,
                   batch_size=32,
-                  callbacks=[early_stop],  # ✅ Plugged in here
+                  callbacks=[early_stop],
                   verbose=0)
 
         preds = model.predict(X_val).flatten()
@@ -69,11 +71,11 @@ def objective(trial):
     return np.mean(val_mae_scores)
 
 
-# Run Optuna
+#  Optuna
 study = optuna.create_study(direction='minimize')
 study.optimize(objective, n_trials=20, timeout= 700) # 12 minutes
 
-#  Train final model using best params
+# final model using the best params
 best = study.best_params
 
 final_model = models.Sequential()
@@ -96,10 +98,10 @@ early_stop = EarlyStopping(
     verbose=1
 )
 
-# 2. Fit model on full dataset (or split if you want)
+# how does the model fit
 final_model.fit(
     X_scaled, y,
-    epochs=50,
+    epochs=50,#mayb3 change to 100
     batch_size=32,
     callbacks=[early_stop],
     verbose=1
@@ -123,3 +125,9 @@ shap.summary_plot(shap_values[0], X_scaled[:100], feature_names=X.columns)
 # Results
 print(" Best Parameters:", study.best_params)
 print(" Best MAE (10-fold CV):", study.best_value)
+
+
+#to do
+#prediction for each fold
+# rm pathloss binned from shap
+#graph with all folds
